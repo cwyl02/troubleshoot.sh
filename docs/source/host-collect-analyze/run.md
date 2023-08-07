@@ -16,6 +16,12 @@ The command to execute on the host.  The command gets executed directly and is n
 ##### `args` (Required)
 The arguments to pass to the specified command.
 
+##### `outputDir` (Optional)
+The directory that you command to write output to on the host, if you want to include your command run's file output into your bundle. If defined, an environment variable `WORKSPACE_DIR` will be available to your command run.
+
+##### `config` (Optional)
+The path of config file that you wish to feed into your command run. It must be define as a single multi-line string. If defined, an environment variable `CONFIG` will be available to your command run. Note that this is a simple map[string]string.
+
 ## Example Collector Definition
 
 ```yaml
@@ -48,6 +54,19 @@ spec:
         collectorName: "docker-logs-etcd"
         command: "sh"
         args: ["-c", "docker logs $(docker ps -a --filter label=io.kubernetes.container.name=etcd -q -l) 2>&1"]
+    # Run command with config gile and collect the file output
+    - run:
+        collectorName: "enriched-audit-logs"
+        # must present on where you run the troubleshoot command
+        command: "enrich-log.sh"
+        args: ["--timeout", "10m", "--output-dir", "$WORKSPACE_OUTPUT"]
+        config:
+          dummy.conf: |-
+            [hello]
+            hello = 1
+
+            [bye]
+            bye = 2
 ```
 
 ## Example Collector Definition With Analyzer
